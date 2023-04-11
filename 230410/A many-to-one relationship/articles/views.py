@@ -72,7 +72,7 @@ def comments_create(request, pk):
 
 def comments_delete(request, article_pk, comment_pk):
     comment = Comment.objects.get(pk=comment_pk)  # comment 가져와서 지워준다.
-    comment.delete()  # 삭제
+    comment.delete() 
     return redirect('articles:detail', article_pk)
 
 
