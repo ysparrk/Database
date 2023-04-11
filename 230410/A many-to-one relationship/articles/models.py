@@ -1,7 +1,10 @@
 from django.db import models
+from django.conf import settings
 
 # Create your models here.
 class Article(models.Model):
+    # article 모델에 user 모델을 참조하는 외래 키 작성
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.CharField(max_length=30)
     content = models.TextField()
     image = models.ImageField(blank=True, null=True)

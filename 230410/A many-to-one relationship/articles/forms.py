@@ -9,7 +9,8 @@ from .models import Article, Comment
 class ArticleForm(forms.ModelForm):
     class Meta:
         model = Article
-        fields = '__all__'
+        # 출력 필드 수정 -> title과 content만 보여지게 한다.
+        fields = ('title', 'content',)
 
 class CommentForm(forms.ModelForm):
     class Meta:

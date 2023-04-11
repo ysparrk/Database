@@ -26,7 +26,10 @@ def create(request):
     if request.method == 'POST':
         form = ArticleForm(request.POST, request.FILES)
         if form.is_valid():
-            article = form.save()
+            # 게시글 작성 시 작성자 정보가 함께 저장될 수 있도록 save의 commit옵션 활용
+            article = form.save(commit=False)
+            article.user = request.user
+            article.save()
             return redirect('articles:detail', article.pk)
     else:
         form = ArticleForm()
@@ -37,24 +40,31 @@ def create(request):
 
 def delete(request, pk):
     article = Article.objects.get(pk=pk)
-    article.delete()
-    return redirect('articles:index')
+    if request.user.is_authenticated:
+        if request.user == article.user:  # 삭제 요청자 == 게시글 작성자
+            article.delete()
+            return redirect('articles:index')
+    return redirect('articles:detail', article.pk)  # else라면 현재 페이지에 머무르기
 
 
 def update(request, pk):
     article = Article.objects.get(pk=pk)
-
-    if request.method == 'POST':
-        form = ArticleForm(request.POST, request.FILES, instance=article)
-        if form.is_valid():
-            form.save()
-            return redirect('articles:detail', pk=article.pk)
+    if request.user == article.user:  # 수정 요청자 == 게시글 작성자
+        if request.method == 'POST': # 수정 가능
+            form = ArticleForm(request.POST, request.FILES, instance=article)
+            if form.is_valid():
+                form.save()
+                return redirect('articles:detail', pk=article.pk)
+        else:
+            form = ArticleForm(instance=article)
+    
     else:
-        form = ArticleForm(instance=article)
-
+        return redirect('articles:index')  # else라면 index페이지로 돌아가기
+    
     context = {'form': form, 'article': article}
     return render(request, 'articles/update.html', context)
 
+#================ COMMENTS ============================
 def comments_create(request, pk):
     article = Article.objects.get(pk=pk)
     comment_form = CommentForm(request.POST)
