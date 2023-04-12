@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <h1>{{ person.username }}님의 프로필</h1>
+    <!--팔로잉, 팔로우 표시-->
+    <div>
+        <!--팔로잉 : {{ person.followings.all|length }} | 팔로워 : {{ person.followers.all|length }} -->
+        팔로잉 : {{ person.followings.count }} | 팔로워 : {{ person.followers.count }}
+    </div>
+    <!--팔로우 버튼-->
+    <div>
+        <form action="{% url 'accounts:follow' person.pk %}" method='POST'>
+            {% csrf_token %}
+            {% if request.user in person.followers.all %}
+                {% comment %} <input type="submit" value='Unfollow'> {% endcomment %}
+                <button type='submit' class='btn btn-danger'>Unfollow</button>
+            {% else %}
+                {% comment %} <input type="submit" value='Follow'> {% endcomment %}
+                <button type='submit' class='btn btn-success'>Follow</button>
+            {% endif %}
+        </form>
+    </div>
+
+    <hr>
+    <!--작성한 게시글 표시-->
+    <h5>{{ person.username }}'s 게시글</h5>
+    {% for article in person.article_set.all  %}
+        <!-- <a href="{% url 'articles:detail' article.pk %}">{{ article.title }}</a> -->
+        <!--부트스트랩 이용-->
+        <div class='card'>
+            <div class='card-body'>
+                <h5 class='card-title'>{{ article.title }}</h5>
+                <p class='card-text'>{{ article.content }}</p>
+                <a href="{% url 'articles:detail' article.pk %}" class='btn btn-primary'>자세히 보기</a>
+            </div>
+        </div>
+    {% endfor %}
+    <hr><br><br>
+    
+    <!--좋아한 게시글 표시-->
+    <h5>{{ person.username }}님이 좋아한 게시글</h5>
+    {% for article in person.like_articles.all  %}  <!--좋아요 표시한 글 모두 가져오기-->
+        <div class='card'>
+            <div class='card-body'>
+                <h5 class='card-title'>{{ article.title }}</h5>
+                <p class='card-text'>{{ article.content }}</p>
+                <a href="{% url 'articles:detail' article.pk %}" class='btn btn-primary'>자세히 보기</a>
+            </div>
+        </div>
+    {% endfor %}
+    <hr><br><br>
+    
+    <!--user가 작성한 댓글-->
+    <h5>{{ person.username}}'s 댓글</h5>
+        {% for comment in person.comment_set.all %}
+            <div class='card'>
+                <div class='card-body'>
+                    <p>{{ comment.content }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    <hr><br><br>
+    
+    <!--목록으로 돌아가기-->
+    <a href="{% url 'articles:index' %}" class='btn btn-success'>목록보기</a>
+
+
+{% endblock content %}
+
+
+
+
